@@ -78,7 +78,7 @@ io.on('connection', (socket) => {
     }
 
     // After having possibly updated our document with a client update, we check if any client has their document out of sync
-    updatePeers();
+    updatePeers(data.actorId);
   });
 });
 
@@ -87,8 +87,11 @@ io.on('connection', (socket) => {
  * 
  * source : https://automerge.org/docs/cookbook/real-time/#sync-protocol
  */
-const updatePeers = () => {
+const updatePeers = (from) => {
   syncStates.map((syncState) => {
+    // We don't want to send a message to the client that just sent us an update
+    if (from && from === syncState.actorId) return syncState;
+
     let tmpState = null;
 
     try {
